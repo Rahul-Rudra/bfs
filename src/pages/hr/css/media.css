@@ -1,0 +1,74 @@
+@media only screen and (min-width: 768px) {
+  .our_clients .col-xl {
+    -ms-flex-preferred-size: 0;
+    flex-basis: 0;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+    max-width: 100%;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .container {
+    max-width: 100%;
+  }
+
+  .our_clients .col-xl {
+    width: 50%;
+    display: inline-block;
+    height: 80px;
+  }
+
+  .our-client-col:not(:first-child) {
+    border-left: 1px solid transparent;
+  }
+
+  .our-client-col:last-child {
+    height: auto;
+  }
+
+  .career-awaits-sec .row {
+    margin: 0;
+  }
+
+  .amazing-careers-sec .row {
+    margin: 0;
+  }
+
+  .banner-section {
+    overflow: hidden;
+  }
+
+  .banner-title {
+    padding-left: 15px;
+  }
+
+  .banner-section {
+    background-color: #fff;
+  }
+
+  .video-banner-sec .from-banner .job-form {
+    background-color: #0460ac;
+    margin: 0;
+    padding: 30px 15px;
+  }
+}
+
+@media only screen and (min-width: 768px) and (max-width: 979px) {
+  .banner-section {
+    height: 430px;
+  }
+
+  .internal-banner .job-form .job-form-inner {
+    background: rgba(29, 104, 179, 0.5);
+    padding: 20px 0;
+  }
+}
+
+@media (max-width: 767px) and (orientation: landscape) {
+  .our_clients .col-xl {
+    width: 33.33%;
+    display: inline-block;
+    height: 80px;
+  }
+}

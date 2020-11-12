@@ -1,0 +1,58 @@
+image: node:9.2.0
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  script: 
+  - cd bfs_front
+  - npm install
+  - CI=true npm run build:prod
+  artifacts:
+   expire_in: 1 day
+   paths:
+   - bfs_front/dist
+  
+deploy_staging:
+  stage: deploy
+  image:  ubuntu:18.04
+  dependencies:
+   - build
+  script:
+   - apt-get update -qq && apt-get install -y -qq lftp
+   - lftp -e "set ssl:verify-certificate no; open -u $USERNAME,$PASSWORD $HOST; rm -r ./assets; bye" ||true
+   - lftp -e "set ssl:verify-certificate no; open -u $USERNAME,$PASSWORD $HOST; rm -r ./images; bye" ||true
+   - lftp -e "set ssl:verify-certificate no; open -u $USERNAME,$PASSWORD $HOST; rm -r ./static; bye" ||true
+   - lftp -e "set ssl:verify-certificate no; open -u $USERNAME,$PASSWORD $HOST; rm ./index.html; bye" ||true
+   - lftp -c "set ssl:verify-certificate no;set ftp:ssl-allow no; open -u $USERNAME,$PASSWORD $HOST; ls -R; mirror -Rev /builds/digiclarity/bfs-website-frontend/bfs_front/dist/ ./  --ignore-time --parallel=10 --exclude-glob .git* --exclude .git/" ||true
+   - lftp -c "set ssl:verify-certificate no;set ftp:ssl-allow no; open -u $USERNAME,$PASSWORD $HOST; put -O ./ /builds/digiclarity/bfs-website-frontend/bfs_front/web.config" ||true
+   
+  environment:
+    name: staging
+    url: https://builders-firstsource-staging-dev.azurewebsites.net
+  only:
+  - integration-hr
+  when: manual
+  
+deploy_preprod:
+  stage: deploy
+  image:  ubuntu:18.04
+  dependencies:
+   - build
+  script:
+   - apt-get update -qq && apt-get install -y -qq lftp
+   - lftp -e "set ssl:verify-certificate no; open -u $PRODUSERNAME,$PRODPASSWORD $PRODHOST; rm -r ./assets; bye" ||true
+   - lftp -e "set ssl:verify-certificate no; open -u $PRODUSERNAME,$PRODPASSWORD $PRODHOST; rm -r ./images; bye" ||true
+   - lftp -e "set ssl:verify-certificate no; open -u $PRODUSERNAME,$PRODPASSWORD $PRODHOST; rm -r ./static; bye" ||true
+   - lftp -e "set ssl:verify-certificate no; open -u $PRODUSERNAME,$PRODPASSWORD $PRODHOST; rm ./index.html; bye" ||true
+   - lftp -c "set ssl:verify-certificate no;set ftp:ssl-allow no; open -u $PRODUSERNAME,$PRODPASSWORD $PRODHOST; ls -R; mirror -Rev /builds/digiclarity/bfs-website-frontend/bfs_front/dist/ ./  --ignore-time --parallel=10 --exclude-glob .git* --exclude .git/" ||true
+   - lftp -c "set ssl:verify-certificate no;set ftp:ssl-allow no; open -u $PRODUSERNAME,$PRODPASSWORD $PRODHOST; put -O ./ /builds/digiclarity/bfs-website-frontend/bfs_front/web.config" ||true
+   
+  environment:
+    name: preprod
+    url: https://bldr-preprod.azurewebsites.net
+  only:
+  - integration-hr
+  when: manual
